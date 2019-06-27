@@ -17,6 +17,7 @@ sheet_tab = walden['sheet_tab']
 #         sheet_tab.insert_one(data)
 
 
+# $lt/$lte/$gt/$gte/$ne，依次等价于</<=/>/>=/!=。（l表示less g表示greater e表示equal n表示not  ）
 # for item in sheet_tab.find({'words': 0}):
-for item in sheet_tab.find():
+for item in sheet_tab.find({'words': {'$gt': 10}}):
     print(item['line'])
