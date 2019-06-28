@@ -16,7 +16,7 @@ def get_channel_url(url):
         print(page_url)
 
 
-# get_channel_url(start_url)
+get_channel_url(start_url)
 channel_list = '''
     https://bj.tongcheng.com/shouji/
     https://bj.tongcheng.com/tongxunyw/

@@ -42,3 +42,6 @@ def get_item_info(url):
         area = list(soup.select('.c_25d a')[0].stripped_strings) if soup.find_all('span', 'c_25d') else None
         item_info.insert_one({'title': title, 'price': price, 'date': date, 'area': area, 'url': url})
         print({'title': title, 'price': price, 'date': date, 'area': area, 'url': url})
+
+
+get_links_from('https://bj.tongcheng.com/shouji/', 2)
