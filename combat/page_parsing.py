@@ -45,12 +45,14 @@ def get_item_info(item_url):
         type = soup.select_one('ul.det-infor > li:nth-child(1) > span >a')
         price = soup.select_one('ul > li:nth-child(2) > i.f22')
         area = "".join(soup.select_one('div:nth-child(2) > div > ul > li:nth-child(3)').text.split())
+        print(item_url)
         data = {
             'title': title.get_text(),
+            'item_url': item_url,
             'post_time': post_time,
-            'type': type.get_text(),
-            'price': int(price.get_text()),
-            'ares': area
+            'type': type.get_text() if type is not None else None,
+            'price': int(price.get_text()) if price is not None else None,
+            'area': area
         }
         item_info.insert_one(data)
         print(data)
