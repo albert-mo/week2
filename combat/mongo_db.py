@@ -8,6 +8,7 @@ ganji = client['ganji']
 channel_list = ganji['channel_list']
 item_info = ganji['item_info']
 category = ganji['category']
+item_info_back = ganji['item_info_back']
 
 
 '''
@@ -115,5 +116,8 @@ def judge_info_got(table, url):
 
 def del_table(table, condition):
     table.remove(condition)
+
+
+# backup(item_info, item_info_back)
 
 
