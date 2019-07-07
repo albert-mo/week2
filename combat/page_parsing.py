@@ -1,62 +1,92 @@
+from string import punctuation
+
 from bs4 import BeautifulSoup
 import requests
 import time
-import pymongo
+import random
+from combat.mongo_db import channel_list, category, item_info, insert_item
 
 
-client = pymongo.MongoClient('localhost', 27017)
-ganji = client['ganji']
-channel_list = ganji['channel_list']
-item_info = ganji['item_info']
+def get_channel_lists(channel, sort):
+    for item in range(1, 11):
+        get_channel_list(channel, item, sort)
 
 
-# 商家输入参数：'a2' 个人输入参数''
-# http://bj.ganji.com/rirongbaihuo/o1/
+def get_channel_data():
+    channels = [item['url'] for item in category.find()]
+    sorts = [item['sort'] for item in category.find()]
+    print(channels)
+    print(sorts)
+    return zip(channels, sorts)
+
+
+# 商家输入参数：'a2' 个人输入参数'a1'
+# http://bj.ganji.com/rirongbaihuo/a1o1/
 # http://bj.ganji.com/rirongbaihuo/a2o2/
-def get_channel_list(channel, page, business_type=''):
+def get_channel_list(channel, page, sort, business_type='a1'):
     url = (channel + '{}o{}/').format(business_type, str(page))
     web_data = requests.get(url)
-    time.sleep(1)
+    time.sleep(random.random() * 3)
     soup = BeautifulSoup(web_data.text, 'lxml')
     titles = soup.select('dl.list-bigpic > dt > a')
-    not_exist = len(soup.find_all('dl', 'list-bigpic')) == 0
-    if not_exist:
-        pass
-    else:
+    # not_exist = len(soup.find_all('dl', 'list-bigpic')) == 0
+    # if not_exist:
+    if soup.find_all('dl', 'list-bigpic'):
         for title in titles:
             data = {
                 'title': title.get('title'),
-                'item_url': title.get('href')
+                'item_url': title.get('href'),
+                'sort': sort
             }
-            channel_list.insert_one(data)
+            insert_item(channel_list, data, 'item_url')
             print(data)
-
-
-def get_item_info(item_url):
-    web_data = requests.get(item_url)
-    time.sleep(1)
-    soup = BeautifulSoup(web_data.text, 'lxml')
-    not_exist = len(soup.find_all('h1')) == 0
-    if not_exist:
-        pass
     else:
+        print('Page {} out of range'.format(page))
+
+
+def get_item_info_data():
+    db_urls = [item['item_url'] for item in channel_list.find()]
+    index_urls = [item['item_url'] for item in item_info.find()]
+    x = set(db_urls)
+    y = set(index_urls)
+    rest_of_urls = x - y
+    sorts = []
+    for item in rest_of_urls:
+        sort = channel_list.find_one({'item_url': item})
+        sorts.append(sort['sort'])
+    print(len(rest_of_urls), ':', rest_of_urls)
+    print(sorts, ':', len(sorts))
+    return zip(rest_of_urls, sorts)
+
+
+def get_item_info(item_url, sort):
+    web_data = requests.get(item_url)
+    time.sleep(random.random() * 3)
+    soup = BeautifulSoup(web_data.text, 'lxml')
+    if soup.find_all('h1'):
         title = soup.select_one('div.title-box h1')
         post_time = " ".join(soup.select_one('ul.title-info-l i.pr-5').get_text().split())
         type = soup.select_one('ul.det-infor > li:nth-child(1) > span >a')
         price = soup.select_one('ul > li:nth-child(2) > i.f22')
-        area = "".join(soup.select_one('div:nth-child(2) > div > ul > li:nth-child(3)').text.split())
-        print(item_url)
+        area = list(soup.select_one('div:nth-child(2) > div > ul > li:nth-child(3)').stripped_strings)
+        area = [i for i in area if i not in punctuation]
+        del area[0]
         data = {
             'title': title.get_text(),
             'item_url': item_url,
             'post_time': post_time,
             'type': type.get_text() if type is not None else None,
             'price': int(price.get_text()) if price is not None else None,
-            'area': area
+            'area': area,
+            'sort': sort
         }
-        item_info.insert_one(data)
+        insert_item(item_info, data, 'item_url')
         print(data)
+    else:
+        print('Not exist!')
 
 
-# get_channel_list('http://bj.ganji.com/jiaju/', 2, 'a2')
-# get_item_info('http://bj.ganji.com/rirongbaihuo/3707192147x.htm')
+# get_channel_list('http://bj.ganji.com/jiaju/', 2, '二手家具', 'a2')
+# get_item_info('http://bj.ganji.com/rirongbaihuo/3628142725x.htm', '窗帘')
+# print(get_channel_data())
+# print(get_item_info_data())
