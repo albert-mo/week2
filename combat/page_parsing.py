@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 import requests
 import time
 import random
-from combat.mongo_db import channel_list, category, item_info, insert_item
+from combat.mongo_db import channel_list, category, item_info, insert_item, update_item_time
 
 
 def get_channel_lists(channel, sort):
@@ -59,6 +59,12 @@ def get_item_info_data():
     return zip(rest_of_urls, sorts)
 
 
+def get_all_item_urls():
+    index_urls = [item['item_url'] for item in item_info.find()]
+    print(len(index_urls), ':', index_urls)
+    return index_urls
+
+
 def get_item_info(item_url, sort):
     web_data = requests.get(item_url)
     time.sleep(random.random() * 3)
@@ -83,7 +89,22 @@ def get_item_info(item_url, sort):
         insert_item(item_info, data, 'item_url')
         print(data)
     else:
-        print('Not exist!')
+        update_item_time(item_info, item_url)
+        print('商品已售出')
+
+
+def get_item_sold(item_url):
+    try:
+        web_data = requests.get(item_url)
+        time.sleep(random.random() * 3)
+        soup = BeautifulSoup(web_data.text, 'lxml')
+        if soup.find_all('h1'):
+            pass
+        else:
+            update_item_time(item_info, item_url)
+            print('商品已售出')
+    except:
+        print('except')
 
 
 # get_channel_list('http://bj.ganji.com/jiaju/', 2, '二手家具', 'a2')

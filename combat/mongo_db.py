@@ -1,3 +1,4 @@
+from datetime import time, datetime
 import pymongo
 
 
@@ -98,6 +99,20 @@ def insert_item(table, data, item):
 
 
 '''
+    更新item.time状态
+'''
+
+
+def update_item_time(table, item_url):
+    now = datetime.now()
+    post_time_str = item_info.find_one({'item_url': item_url})['post_time'][0]
+    post_time = datetime.strptime(post_time_str, '%Y-%m-%d')
+    days = now - post_time
+    # print(days.days)
+    table.update({'item_url': item_url}, {'$set': {'time': days.days}})
+
+
+'''
     通过表名、url判断信息是否已经爬取
 '''
 
@@ -133,7 +148,8 @@ def add_field():
         )
 
 
-# backup(item_info, item_info_back)
+backup(item_info_back, item_info)
+# add_field()
 # 删除字段
 # item_info.update({}, {'$unset': {'add': "time"}})
-
+# update_item_time(item_info, 'http://bj.ganji.com/rirongbaihuo/3710675672x.htm')

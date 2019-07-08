@@ -20,4 +20,4 @@ def extract_urls(url):
         print(data)
 
 
-extract_urls(start_url)
+# extract_urls(start_url)
