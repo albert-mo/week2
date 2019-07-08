@@ -118,6 +118,22 @@ def del_table(table, condition):
     table.remove(condition)
 
 
-# backup(item_info, item_info_back)
+'''
+    新增表字段
+'''
 
+
+def add_field():
+    for item in item_info.find():
+        item_info.update(
+            {'_id': item['_id']},
+            {'$set': {'time': 0}},
+            False,
+            True
+        )
+
+
+# backup(item_info, item_info_back)
+# 删除字段
+# item_info.update({}, {'$unset': {'add': "time"}})
 
