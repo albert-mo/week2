@@ -3,8 +3,7 @@ import telnetlib
 from bs4 import BeautifulSoup
 import requests, time, random
 from multiprocessing import Pool
-from mongo_db import insert_proxy, update_proxy, xici, reset_proxy, get_valid_proxy
-
+from combat.mongo_db import insert_proxy, update_proxy, xici, reset_proxy, get_valid_proxy
 
 xici_url = 'https://www.xicidaili.com/wn/{}'
 qydaili_url = 'http://www.qydaili.com/free/?action=china&page={}'
@@ -144,4 +143,3 @@ if __name__ == '__main__':
         pool.map(test_status_requsets, datas)
     pool.close()
     pool.join()
-
